@@ -2,6 +2,7 @@ from sympy import *
 from time import time
 from mpmath import radians
 import tf
+from my_solver import *
 
 '''
 Format of test case is [ [[EE position],[EE orientation as quaternions]],[WC location],[joint angles]]
@@ -61,7 +62,6 @@ def test_code(test_case):
     
     ########################################################################################
     ## 
-
     ## Insert IK code here!
     
     theta1 = 0
@@ -70,6 +70,146 @@ def test_code(test_case):
     theta4 = 0
     theta5 = 0
     theta6 = 0
+    # Joint Limits
+    lower = {1: radians(-185),
+             2: radians(-45),
+             3: radians(-210),
+             4: radians(-350),
+             5: radians(-125),
+             6: radians(-350)}
+    upper = {1: radians(185),
+             2: radians(85),
+             3: radians(65),
+             4: radians(350),
+             5: radians(125),
+             6: radians(350)}
+
+    # DH symbols
+    a0, a1, a2, a3, a4, a5, a6 = symbols('a0:7')
+    alpha0, alpha1, alpha2, alpha3, alpha4, alpha5, alpha6 = symbols('alpha0:7')
+    d1, d2, d3, d4, d5, d6, d7 = symbols('d1:8')
+    q1, q2, q3, q4, q5, q6, q7 = symbols('q1:8')
+
+    # DH parameters
+    DH = {alpha0:     0, a0: 0    , d1: 0.75 , q1: q1,
+          alpha1: -pi/2, a1: 0.35 , d2: 0    , q2: q2-pi/2,
+          alpha2:     0, a2: 1.25 , d3: 0    , q3: q3,
+          alpha3: -pi/2, a3:-0.054, d4: 1.5  , q4: q4,
+          alpha4:  pi/2, a4: 0    , d5: 0    , q5: q5,
+          alpha5: -pi/2, a5: 0    , d6: 0    , q6: q6,
+          alpha6:     0, a6: 0    , d7: 0.303, q7:  0}
+
+    # Define Transformation Matrices
+    def DH_transform(a, alpha, d, q):
+        T = Matrix([[           cos(q),           -sin(q),           0,             a],
+                    [sin(q)*cos(alpha), cos(q)*cos(alpha), -sin(alpha), -sin(alpha)*d],
+                    [sin(q)*sin(alpha), cos(q)*sin(alpha),  cos(alpha),  cos(alpha)*d],
+                    [                0,                 0,           0,             1]])
+        return T
+
+    T0_1 = DH_transform(a0, alpha0, d1, q1).subs(DH)
+    T1_2 = DH_transform(a1, alpha1, d2, q2).subs(DH)
+    T2_3 = DH_transform(a2, alpha2, d3, q3).subs(DH)
+    T3_4 = DH_transform(a3, alpha3, d4, q4).subs(DH)
+    T4_5 = DH_transform(a4, alpha4, d5, q5).subs(DH)
+    T5_6 = DH_transform(a5, alpha5, d6, q6).subs(DH)
+    T6_EE = DH_transform(a6, alpha6, d7, q7).subs(DH)
+
+    T0_EE = T0_1 * T1_2 * T2_3 * T3_4 * T4_5 * T5_6 * T6_EE
+
+    # Extract end-effector postion from request
+    px = req.poses[x].position.x
+    py = req.poses[x].position.y
+    pz = req.poses[x].position.z
+
+    (roll, pitch, yaw) = tf.transformations.euler_from_quaternion(
+            [req.poses[x].orientation.x, req.poses[x].orientation.y,
+             req.poses[x].orientation.z, req.poses[x].orientation.w])
+
+    # Find EE rotation matrix
+    # Compensate for different coordinate definition
+    r, p, y = symbols('r p y')
+
+    ROT_x = Matrix([[ 1,      0,       0],
+                    [ 0, cos(r), -sin(r)],
+                    [ 0, sin(r),  cos(r)]])
+    ROT_y = Matrix([[  cos(p),     0,   sin(p)],
+                    [       0,     1,        0],
+                    [ -sin(p),     0,   cos(p)]])
+    ROT_z = Matrix([[ cos(y), -sin(y),   0],
+                    [ sin(y),  cos(y),   0],
+                    [      0,       0,   1]])
+
+    ROT_EE = ROT_z * ROT_y * ROT_x
+    #Rot_error = ROT_z.subs(y, radians(180)) * ROT_y.subs(p, radians(-90))
+    Rot_error = Rot_z(radians(180)) * Rot_y(radians(-90))
+
+    ROT_EE = ROT_EE * Rot_error
+    ROT_EE = ROT_EE.subs({'r': roll, 'p': pitch, 'y': yaw})
+
+    EE = Matrix([[px],
+                 [py],
+                 [pz]])
+
+    WC = EE - 0.303 * ROT_EE[:,2]
+
+    solutions = []
+    # Decouple IK to position and orientation
+    theta1 = atan2(WC[1], WC[0])
+
+    # Solve theta1 - theta3 by geometry
+    r = sqrt(WC[0]*WC[0] + WC[1]*WC[1]) - 0.35
+    s = WC[2] - 0.75
+    t = sqrt( 1.5*1.5 + 0.054*0.054)
+    offset3 = atan2(0.054, 1.5) # scew angle of link 3
+
+    side_a = t
+    side_b = sqrt( s*s + r*r )
+    side_c = 1.25 # equals to a2
+
+    angle_a = acos((side_b*side_b + side_c*side_c - side_a*side_a) / (2. * side_b * side_c))
+    angle_b = acos((side_a*side_a + side_c*side_c - side_b*side_b) / (2. * side_a * side_c))
+    angle_c = acos((side_a*side_a + side_b*side_b - side_c*side_c) / (2. * side_a * side_b))
+
+    #theta2 = pi/2 - atan2(s,r) - angle_a
+    #theta3 = pi/2 - angle_b - offset3
+    cos_3 = (-side_a*side_a - side_c*side_c + side_b*side_b) / (2. * side_a * side_c)
+    s3 = sqrt(1 - cos_3*cos_3)
+    for sin_3 in [s3,-s3]:
+        theta3 = atan2(sin_3, cos_3) - offset3 - pi/2
+    
+        theta2 = pi/2 -  atan2(t*sin_3, t*cos_3+side_c) - atan2(s,r)
+
+        # Calculate composite rotation by theta4 - theta6
+        R0_3 = T0_1[0:3,0:3] * T1_2[0:3,0:3] * T2_3[0:3,0:3]
+        R0_3 = R0_3.evalf(subs={q1:theta1, q2: theta2, q3: theta3})
+
+        # NOTE: for orthonormal matrix, inv = transpose
+        R3_6 = R0_3.T * ROT_EE
+        s5 = sqrt(R3_6[0,2]*R3_6[0,2] + R3_6[2,2]*R3_6[2,2])
+        for sin_5 in [s5,-s5]:
+            # Solve theta4 - theta6 by euler rotation matrix
+            theta4 = atan2(R3_6[2,2]*sign(sin_5), -R3_6[0,2]*sign(sin_5))
+            theta5 = atan2(sin_5, R3_6[1,2])
+            theta6 = atan2(-R3_6[1,1]*sign(sin_5), R3_6[1,0]*sign(sin_5))
+            #solutions.append([theta1.evalf(), theta2,evalf(), theta3,evalt(),
+            #                  theta4.evalf(), theta5.evalf(), theta6.evalf()])
+            solutions.append([theta1, theta2, theta3, theta4, theta5, theta6])
+    
+    # check if any solution is beyond joint limit
+    min_solution = None
+    min_cost = 999999.
+    for solution in solutions:
+        cost = 0.
+        for i, theta in enumerate(solution):
+            if theta > upper[i+1] or theta < lower[i+1]:
+                continue
+            cost += abs(theta)
+        if min_solution is None or cost < min_cost:
+            min_solution = solution
+            min_cost = cost
+    theta1, theta2, theta3, theta4, theta5, theta6 = min_solution[:]
+
 
     ## 
     ########################################################################################
@@ -79,13 +219,16 @@ def test_code(test_case):
     ## as the input and output the position of your end effector as your_ee = [x,y,z]
 
     ## (OPTIONAL) YOUR CODE HERE!
+    T0_4 = T0_1 * T1_2 * T2_3 * T3_4
+    T0_4 = T0_4.subs({q1: theta1, q2: theta2, q3: theta3, q4: theta4})
 
+    T0_EE = T0_EE.subs({q1: theta1, q2: theta2, q3: theta3, q4: theta4, q5: theta5, q6: theta6})
     ## End your code input for forward kinematics here!
     ########################################################################################
 
     ## For error analysis please set the following variables of your WC location and EE location in the format of [x,y,z]
-    your_wc = [1,1,1] # <--- Load your calculated WC values in this array
-    your_ee = [1,1,1] # <--- Load your calculated end effector value from your forward kinematics
+    your_wc = [T0_4[0,3],T0_4[1,3],T0_4[2,3]] # <--- Load your calculated WC values in this array
+    your_ee = [T0_EE[0,3],T0_EE[1,3],T0_EE[2,3]] # <--- Load your calculated end effector value from your forward kinematics
     ########################################################################################
 
     ## Error analysis
