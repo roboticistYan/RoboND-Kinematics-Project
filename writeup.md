@@ -2,9 +2,9 @@
 
 [//]: # (Image References)
 
-[image1]: ./misc_images/scan1.jpg
-[image2]: ./misc_images/scan2.jpg
-[image3]: ./misc_images/scan3.jpg
+[image1]: ./misc_images/Scan0001.jpg
+[image2]: ./misc_images/Scan0002.jpg
+[image3]: ./misc_images/Scan0003.jpg
 
 ### Writeup / README
 
@@ -167,3 +167,5 @@ Conclusion: for each requested pose, there are four possible solutions; Two for 
 7. Joint 2, 3 and 5 has narrower limit range. Therefore, omit the solutions where joint 2 and 3 exceed joint limits.
 
 8. An abrupt transition between a path is undesired. Thus, pick the solution that satisfies both valid joint limit and shortest distance (L1 norm) to previous pose's solution.
+
+The running time is slightly long for paths that contains more than 30 poses. In the future, I might improve it by writing a more efficient solver class.
