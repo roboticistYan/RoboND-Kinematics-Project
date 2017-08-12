@@ -133,6 +133,8 @@ def handle_calculate_IK(req):
             for sin_3 in [s3,-s3]:
                 theta2 = pi/2 -  atan2(t*sin_3, t*cos_3+side_c) - atan2(s,r)
                 theta3 = atan2(sin_3, cos_3) - offset3 - pi/2
+                
+                # Omit solution if it exceeds joint limits
                 if (theta2 < 0 and theta2 < lower[2]) or (theta2 > 0 and theta2 > upper[2]):
                     continue
                 if (theta3 < 0 and theta3 < lower[3]) or (theta3 > 0 and theta3 > upper[3]):
@@ -150,6 +152,10 @@ def handle_calculate_IK(req):
                     theta4 = atan2(R3_6[2,2]*sign(sin_5), -R3_6[0,2]*sign(sin_5))
                     theta5 = atan2(sin_5, R3_6[1,2])
                     theta6 = atan2(-R3_6[1,1]*sign(sin_5), R3_6[1,0]*sign(sin_5))
+
+                    # Omit solution if it exceeds joint limits
+                    if (theta5 < 0 and theta5 < upper[5]) or (theta5 > 0 and theta5 > upper[5]):
+                        continue
                     solutions.append([theta1, theta2, theta3, theta4, theta5, theta6])
 
             if prev_solution is None:

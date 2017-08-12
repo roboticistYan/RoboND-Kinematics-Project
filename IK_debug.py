@@ -2,7 +2,6 @@ from sympy import *
 from time import time
 from mpmath import radians
 import tf
-from my_solver import *
 
 '''
 Format of test case is [ [[EE position],[EE orientation as quaternions]],[WC location],[joint angles]]
@@ -141,8 +140,7 @@ def test_code(test_case):
                     [      0,       0,   1]])
 
     ROT_EE = ROT_z * ROT_y * ROT_x
-    #Rot_error = ROT_z.subs(y, radians(180)) * ROT_y.subs(p, radians(-90))
-    Rot_error = Rot_z(radians(180)) * Rot_y(radians(-90))
+    Rot_error = ROT_z.subs(y, radians(180)) * ROT_y.subs(p, radians(-90))
 
     ROT_EE = ROT_EE * Rot_error
     ROT_EE = ROT_EE.subs({'r': roll, 'p': pitch, 'y': yaw})
