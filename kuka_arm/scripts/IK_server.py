@@ -112,16 +112,20 @@ def handle_calculate_IK(req):
             # Solve theta1 - theta3 by geometry method
             theta1 = atan2(WC[1], WC[0])
 
-            r = sqrt(WC[0]*WC[0] + WC[1]*WC[1]) - 0.35
-            s = WC[2] - 0.75
-            t = sqrt( 1.5*1.5 + 0.054*0.054)
-            offset3 = atan2(0.054, 1.5)     # scew angle of link 3
+            # Define the Origin2-Origin4-A, where A is the projection of O4 on y2-axis.
+            r = sqrt(WC[0]*WC[0] + WC[1]*WC[1]) - 0.35  # Length of O2-A
+            s = WC[2] - 0.75                            # Length of A-O4
 
-            # Triangle: Origin2-Origin3-Origin4
-            side_a = t
-            side_b = sqrt( s*s + r*r )
-            side_c = 1.25 # equals to a2
+            # Define the triangle: Origin2-Origin3-Origin4
+            side_a = sqrt( 1.5*1.5 + 0.054*0.054)   # O3-O4
+            side_b = sqrt( s*s + r*r )              # O2-O4
+            side_c = 1.25                           # O2-O3: equals to a2
 
+            # Link3 - link4 gives theta3 an extra skew rotation.
+            # Account for this offset for joint command
+            offset3 = atan2(0.054, 1.5)             # Scew angle of link3 and link4
+
+            # Given the length of each side, we will be able to solve for theta2 and theta3.
             cos_3 = (-side_a*side_a - side_c*side_c + side_b*side_b) / (2. * side_a * side_c)
             s3 = sqrt(1 - cos_3*cos_3)
 
@@ -131,7 +135,7 @@ def handle_calculate_IK(req):
             # previous solution.
             solutions = []
             for sin_3 in [s3,-s3]:
-                theta2 = pi/2 -  atan2(t*sin_3, t*cos_3+side_c) - atan2(s,r)
+                theta2 = pi/2 -  atan2(side_a*sin_3, side_a*cos_3+side_c) - atan2(s,r)
                 theta3 = atan2(sin_3, cos_3) - offset3 - pi/2
                 
                 # Omit solution if it exceeds joint limits

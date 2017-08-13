@@ -56,51 +56,51 @@ The output:
 Baselink -> Joint1
 
 	Matrix([[cos(q1), -sin(q1), 0, 0   ],
-			[sin(q1),  cos(q1), 0, 0   ], 
-			[	   0, 		 0, 1, 0.75],
-			[	   0, 		 0, 0, 1   ]])
+		[sin(q1),  cos(q1), 0, 0   ], 
+		[	   0, 		 0, 1, 0.75],
+		[	   0, 		 0, 0, 1   ]])
 
 Joint1 -> Joint2
 
 	Matrix([[sin(q2),  cos(q2), 0, 0.35 ], 
-			[	   0, 	     0, 1, 0	], 
-			[cos(q2), -sin(q2), 0, 0	], 
-			[	   0, 		 0, 0, 1	]])
+		[	   0, 	     0, 1, 0	], 
+		[cos(q2), -sin(q2), 0, 0	], 
+		[	   0, 		 0, 0, 1	]])
 
 Joint2 -> Joint3
 
 	Matrix([[cos(q3), -sin(q3), 0, 1.25  ], 
-			[sin(q3),  cos(q3), 0, 0	 ], 
-			[	   0,		 0, 1, 0	 ], 
-			[	   0,		 0, 0, 1	 ]])
+		[sin(q3),  cos(q3), 0, 0	 ], 
+		[	   0,		 0, 1, 0	 ], 
+		[	   0,		 0, 0, 1	 ]])
 
 Joint3 -> Joint4
 
 	Matrix([[ cos(q4), -sin(q4), 0, -0.054  ], 
-			[		0, 		  0, 1,  1.5	], 
-			[-sin(q4), -cos(q4), 0,  0		], 
-			[		0, 		  0, 0,  1		]])
+		[		0, 		  0, 1,  1.5	], 
+		[-sin(q4), -cos(q4), 0,  0		], 
+		[		0, 		  0, 0,  1		]])
 
 Joint4 -> Joint5
 
 	Matrix([[cos(q5), -sin(q5),  0, 0], 
-			[	   0, 		 0, -1, 0], 
-			[sin(q5),  cos(q5),  0, 0], 
-			[	   0, 		 0,  0, 1]])
+		[	   0, 		 0, -1, 0], 
+		[sin(q5),  cos(q5),  0, 0], 
+		[	   0, 		 0,  0, 1]])
 
 Joint5 -> Joint6
 
 	Matrix([[ cos(q6), -sin(q6), 0, 0], 
-			[		0,	 	  0, 1, 0], 
-			[-sin(q6), -cos(q6), 0, 0], 
-			[		0,		  0, 0, 1]])
+		[		0,	 	  0, 1, 0], 
+		[-sin(q6), -cos(q6), 0, 0], 
+		[		0,		  0, 0, 1]])
 
 Joint6 -> Gripper
 
 	Matrix([[1, 0, 0, 0		 ], 
-			[0, 1, 0, 0		 ], 
-			[0, 0, 1, 0.303  ], 
-			[0, 0, 0, 1		 ]])
+		[0, 1, 0, 0		 ], 
+		[0, 0, 1, 0.303  ], 
+		[0, 0, 0, 1		 ]])
 
 Joint3 -> Joint 6 (Euler rotation)
 
@@ -114,9 +114,9 @@ Joint3 -> Joint 6 (Euler rotation)
 Base Link -> Gripper
 
 	Matrix([[((sin(q1)*sin(q4) + sin(q2 + q3)*cos(q1)*cos(q4))*cos(q5) + sin(q5)*cos(q1)*cos(q2 + q3))*cos(q6) - (-sin(q1)*cos(q4) + sin(q4)*sin(q2 + q3)*cos(q1))*sin(q6), -((sin(q1)*sin(q4) + sin(q2 + q3)*cos(q1)*cos(q4))*cos(q5) + sin(q5)*cos(q1)*cos(q2 + q3))*sin(q6) + (sin(q1)*cos(q4) - sin(q4)*sin(q2 + q3)*cos(q1))*cos(q6), -(sin(q1)*sin(q4) + sin(q2 + q3)*cos(q1)*cos(q4))*sin(q5) + cos(q1)*cos(q5)*cos(q2 + q3), -0.303*sin(q1)*sin(q4)*sin(q5) + 1.25*sin(q2)*cos(q1) - 0.303*sin(q5)*sin(q2 + q3)*cos(q1)*cos(q4) - 0.054*sin(q2 + q3)*cos(q1) + 0.303*cos(q1)*cos(q5)*cos(q2 + q3) + 1.5*cos(q1)*cos(q2 + q3) + 0.35*cos(q1)],
-			[ ((sin(q1)*sin(q2 + q3)*cos(q4) - sin(q4)*cos(q1))*cos(q5) + sin(q1)*sin(q5)*cos(q2 + q3))*cos(q6) - (sin(q1)*sin(q4)*sin(q2 + q3) + cos(q1)*cos(q4))*sin(q6), -((sin(q1)*sin(q2 + q3)*cos(q4) - sin(q4)*cos(q1))*cos(q5) + sin(q1)*sin(q5)*cos(q2 + q3))*sin(q6) - (sin(q1)*sin(q4)*sin(q2 + q3) + cos(q1)*cos(q4))*cos(q6), -(sin(q1)*sin(q2 + q3)*cos(q4) - sin(q4)*cos(q1))*sin(q5) + sin(q1)*cos(q5)*cos(q2 + q3),  1.25*sin(q1)*sin(q2) - 0.303*sin(q1)*sin(q5)*sin(q2 + q3)*cos(q4) - 0.054*sin(q1)*sin(q2 + q3) + 0.303*sin(q1)*cos(q5)*cos(q2 + q3) + 1.5*sin(q1)*cos(q2 + q3) + 0.35*sin(q1) + 0.303*sin(q4)*sin(q5)*cos(q1)],
-			[                                                                -(sin(q5)*sin(q2 + q3) - cos(q4)*cos(q5)*cos(q2 + q3))*cos(q6) - sin(q4)*sin(q6)*cos(q2 + q3),                                                                  (sin(q5)*sin(q2 + q3) - cos(q4)*cos(q5)*cos(q2 + q3))*sin(q6) - sin(q4)*cos(q6)*cos(q2 + q3),                                     -sin(q5)*cos(q4)*cos(q2 + q3) - sin(q2 + q3)*cos(q5),                                                                                 -0.303*sin(q5)*cos(q4)*cos(q2 + q3) - 0.303*sin(q2 + q3)*cos(q5) - 1.5*sin(q2 + q3) + 1.25*cos(q2) - 0.054*cos(q2 + q3) + 0.75],
-			[                                                                                                                                                            0,                                                                                                                                                             0,                                                                                        0,                                                                                                                                                                                                              1]])
+		[ ((sin(q1)*sin(q2 + q3)*cos(q4) - sin(q4)*cos(q1))*cos(q5) + sin(q1)*sin(q5)*cos(q2 + q3))*cos(q6) - (sin(q1)*sin(q4)*sin(q2 + q3) + cos(q1)*cos(q4))*sin(q6), -((sin(q1)*sin(q2 + q3)*cos(q4) - sin(q4)*cos(q1))*cos(q5) + sin(q1)*sin(q5)*cos(q2 + q3))*sin(q6) - (sin(q1)*sin(q4)*sin(q2 + q3) + cos(q1)*cos(q4))*cos(q6), -(sin(q1)*sin(q2 + q3)*cos(q4) - sin(q4)*cos(q1))*sin(q5) + sin(q1)*cos(q5)*cos(q2 + q3),  1.25*sin(q1)*sin(q2) - 0.303*sin(q1)*sin(q5)*sin(q2 + q3)*cos(q4) - 0.054*sin(q1)*sin(q2 + q3) + 0.303*sin(q1)*cos(q5)*cos(q2 + q3) + 1.5*sin(q1)*cos(q2 + q3) + 0.35*sin(q1) + 0.303*sin(q4)*sin(q5)*cos(q1)],
+		[                                                                -(sin(q5)*sin(q2 + q3) - cos(q4)*cos(q5)*cos(q2 + q3))*cos(q6) - sin(q4)*sin(q6)*cos(q2 + q3),                                                                  (sin(q5)*sin(q2 + q3) - cos(q4)*cos(q5)*cos(q2 + q3))*sin(q6) - sin(q4)*cos(q6)*cos(q2 + q3),                                     -sin(q5)*cos(q4)*cos(q2 + q3) - sin(q2 + q3)*cos(q5),                                                                                 -0.303*sin(q5)*cos(q4)*cos(q2 + q3) - 0.303*sin(q2 + q3)*cos(q5) - 1.5*sin(q2 + q3) + 1.25*cos(q2) - 0.054*cos(q2 + q3) + 0.75],
+		[                                                                                                                                                            0,                                                                                                                                                             0,                                                                                        0,                                                                                                                                                                                                              1]])
 
 
 #### 3. Decouple Inverse Kinematics problem into Inverse Position Kinematics and inverse Orientation Kinematics; doing so derive the equations to calculate all individual joint angles.
